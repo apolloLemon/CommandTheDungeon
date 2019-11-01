@@ -9,6 +9,7 @@ class Player:
 		self.charisma = 1
 		self.health = 1
 		self.trapped = True
+		
 class Salle:
 	def __init__(self, name, murs):
 		self.name = name
@@ -64,6 +65,30 @@ class Porte(Mur):
 				print("The door is unlocked")
 			else:
 				print("Locked Door")
+
+class NamedDoor(Porte):
+	def __init__(self,isOpen,name,textL,textO):
+		self.isOpen=isOpen
+		self.name=name
+		self.textL=textL
+		self.textO=textO
+
+	def interact(self,p):
+		if(self.isOpen):
+			print("You have entered:")
+			if(p.dans == self.room1):
+				p.dans = self.room2
+				print(self.room2.name)
+			else :
+				p.dans = self.room1
+				print(self.room1.name)
+		else:
+			if(p.hasKey):
+				self.isOpen = True
+				print(self.textO)
+			else:
+				print(self.textL)
+
 class Meuble(Mur):
 	def __init__(self, nom, text):
 		self.nom = nom
@@ -100,7 +125,7 @@ def MakeDungeon():
 	mir = Meuble("Mirror","you see your reflection")
 	tap = Meuble("Tapistry","the colors have faded with time")
 	torch = Stat("Torch","it burns","hp",-1)
-	table = Meuble("Table","has food on it")
+	table = Stat("Table","has food on it","hp",2)
 
 	#make the doors
 	EntreOut = Porte(False)
@@ -123,6 +148,7 @@ def MakeDungeon():
 	MangerCuisine.connect(Manger,Cuisine)
 	EntreCuisine.connect(Cuisine,Entre)
 
+	#put the first room at 0 and the exit at -1
 	return [Cave,Entre,Cuisine,Manger,Out]
 def Game():
 	dungeon = MakeDungeon()
@@ -140,5 +166,14 @@ def Game():
 			target = input("interact with: ")
 			target = target.lower().capitalize()
 			P1.dans.interactWith(target, P1)
-	print("You have made it outside ("+str(turns)+" turns || health : "+str(P1.health)+" charisma : "+str(P1.charisma)+")")
+	
+	healthstr = " "
+	charismastr = " "
+	if P1.health < 1 :
+		healthstr += "barely "
+		charismastr += "but you got out "
+	if P1.charisma > 0 :
+		charismastr += "in style "
+
+	print("You"+healthstr+"made it outside"+charismastr+"("+str(turns)+" turns)")
 Game()
